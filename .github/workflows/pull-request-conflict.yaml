@@ -1,22 +1,21 @@
-name: PullRequestConflicting
-
-on:
-  push:
-  pull_request:
-    types: [ synchronize ]
-
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - name: print user login name
+    - continue-on-error: true
       id: print-user
+      name: print user login name
       run: echo 'aa${{ github.event.pull_request.user.login }}aa'
-    - name: check if prs are dirty
-      if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
-      uses: eps1lon/actions-label-merge-conflict@v3
+    - continue-on-error: true
       id: check
+      if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+      name: check if prs are dirty
+      uses: eps1lon/actions-label-merge-conflict@v3
       with:
-        dirtyLabel: "conflicting"
-        repoToken: "${{ secrets.AUTOMATION_TOKEN }}"
         commentOnDirty: '@dependabot recreate'
+        dirtyLabel: conflicting
+        repoToken: ${{ secrets.AUTOMATION_TOKEN }}
+name: PullRequestConflicting
+on:
+  repository_dispatch:
+    types: trigger-ga___pull-request-conflict.yaml
